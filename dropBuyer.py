@@ -195,18 +195,46 @@ class GamerBot:
                 element = WebDriverWait(self.driver, 99999).until(
                     EC.presence_of_element_located(
                         (By.XPATH, "//*[@class='v-card__actions']//div[@class='col-sm-4 col-6'][2]//button//span")))
-                time = element.text
-                kok = time.split()
+                time_to_drop = element.text
+                kok = time_to_drop.split()
                 minutes = int(''.join(filter(str.isdigit, kok[0])))
                 seconds = int(''.join(filter(str.isdigit, kok[1])))
-                time = minutes * 60 + seconds
-                self.window['output_' + self.acc_name].update(time)
-                print('время: ', time)
-                element = WebDriverWait(self.driver, time + 15).until(
+                time_to_drop = minutes * 60 + seconds
+                self.window['output_' + self.acc_name].update(time_to_drop)
+                print('время: ', time_to_drop)
+                element = WebDriverWait(self.driver, time_to_drop + 30).until(
                     EC.element_to_be_clickable(
                         (By.XPATH, "//*[@class='v-card__actions']//div[@class='col-sm-4 col-6'][2]//button")))
                 element.click()
                 # captcha.kok(self.driver, False, self.window, 'output_' + self.acc_name)
+
+
+                approve_window = False
+                while True:
+                    windows = self.driver.window_handles
+
+                # if len(windows) == 1:
+                #     flag = False
+                #     break
+                    for window in windows:
+                        if window != self.mainWindowHandle:
+                            self.driver.switch_to.window(window)
+                            print(self.driver.current_url)
+                            if "wax.io" in self.driver.current_url:
+                                approve_window = window
+                                break
+                    if approve_window:
+                        break
+                            # else:
+                            #     self.driver.close()
+                self.driver.switch_to.window(approve_window)
+                element = WebDriverWait(self.driver, 99999).until(
+                    EC.presence_of_element_located((By.XPATH,'//*[text()="Approve"]')))
+                element[0].click()
+                self.driver.switch_to_window(self.mainWindowHandle)
+
+
+
             except:
                 pass
         # while not self.stop:
@@ -256,7 +284,7 @@ class GamerBot:
             if message == 'stop':
                 self.stop = True
                 print(self.stop)
-                self.driver.quit();
+                self.driver.quit()
                 exit()
 
     
